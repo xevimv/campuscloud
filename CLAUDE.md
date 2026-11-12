@@ -37,17 +37,19 @@ Ver carpeta `docs/` para detalle de cada módulo.
 | Módulo | Descripción |
 |--------|-------------|
 | [Módulo 1](docs/modulo1-webhook-matricula.md) | Webhook ePayco + matrícula automática en Moodle vía API REST |
-| Módulo 2 | CRUD distribuidores, IETDHs, cursos + sincronización cohortes/grupos Moodle |
+| [Módulo 2](docs/modulo2-distribuidores-ietdhs-cursos.md) | CRUD distribuidores, IETDHs, cursos + sincronización cohortes/grupos Moodle |
 | [Módulo 3](docs/modulo3-autenticacion-vendedores.md) | Autenticación Sanctum, vendedores con código referido (`?ref=CARL-X7K2M9`), IETDH como distribuidora |
 | [Módulo 4](docs/modulo4-siet-exportacion.md) | Formulario SIET 19 campos post-curso 1, exportación XLS formato SIET, Job de sincronización |
 | [Módulo 5](docs/modulo5-certificados-actas.md) | Certificados con actas (T/B + año 2d + mes 2d, ej: T2604), folios consecutivos con bloqueo pesimista, UUID verificación |
 | [Módulo 5B](docs/modulo5b-pdf-correo.md) | PDF del certificado con DomPDF, QR embebido, envío automático por correo |
 | [Módulo 6](docs/modulo6-liquidaciones-ietdh.md) | Liquidaciones mensuales IETDHs — cierre día 1 a las 6am, PDF adjunto, estados: GENERADA → ENVIADA → FACTURADA → PAGADA |
 | [Módulo 7](docs/modulo7-reportes-distribuidores.md) | Reportes automáticos a distribuidores — semanal (lunes 8am) y mensual (día 1, 8:30am) |
-| Módulo 8 | Dashboard Next.js — métricas en tiempo real, Recharts, alertas, páginas distribuidores/liquidaciones/certificados/webhooks |
+| [Módulo 8](docs/modulo8-dashboard.md) | Dashboard Next.js — métricas en tiempo real, Recharts, alertas, páginas distribuidores/liquidaciones/certificados/webhooks |
 | [Módulo 9](docs/modulo9-verificacion-certificados.md) | Validación pública en `/verificar/{uuid}` + widget HTML embebible para WordPress |
 | [Auditoría](docs/auditoria-cursos.md) | Auditor de calidad de cursos con 7 criterios y semáforo |
 | [Sincronizador](docs/sincronizador-cursos.md) | Importador de cursos existentes desde Moodle |
+| [Portal Distribuidor](docs/portal-distribuidor.md) | Panel de acceso para distribuidores — dashboard, certificados, estudiantes, vendedores |
+| [Inventario Cursos](docs/inventario-cursos.md) | Gestión de inventario de cursos con vista detallada por curso |
 
 ## Convenciones de código críticas
 
