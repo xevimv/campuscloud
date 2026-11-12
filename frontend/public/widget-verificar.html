@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!--
+  WIDGET DE VERIFICACIÓN — para distribuidores
+  ============================================
+  Pega este archivo en tu WordPress o sitio web para que
+  tus estudiantes puedan verificar sus certificados
+  directamente desde tu dominio.
+
+  Uso en WordPress:
+    1. Agrega un bloque "HTML personalizado"
+    2. Pega el contenido del <div id="nomaddi-verificar"> hasta el </script>
+    3. Guarda y publica
+
+  Personaliza los colores cambiando las variables CSS al inicio del <style>.
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificar Certificado</title>
+<style>
+  /* ── PERSONALIZACIÓN: cambia estos colores según tu marca ── */
+  :root {
+    --color-primario: #1D4E89;    /* Color principal de tu marca */
+    --color-valido: #059669;      /* Verde para certificado válido */
+    --color-invalido: #DC2626;    /* Rojo para certificado inválido */
+    --color-anulado: #D97706;     /* Ámbar para certificado anulado */
+  }
+
+  /* ── Estilos del widget ── */
+  #nomaddi-verificar * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  #nomaddi-verificar { max-width: 520px; margin: 0 auto; padding: 24px 0; }
+  .nv-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; }
+  .nv-header { background: var(--color-primario); padding: 20px 24px; color: white; }
+  .nv-header h2 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .nv-header p { font-size: 13px; opacity: .8; }
+  .nv-body { padding: 20px 24px; }
+  .nv-input-wrap { display: flex; gap: 8px; margin-bottom: 8px; }
+  .nv-input { flex: 1; border: 1.5px solid #d1d5db; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-family: monospace; color: #374151; outline: none; transition: border-color .2s; }
+  .nv-input:focus { border-color: var(--color-primario); }
+  .nv-btn { background: var(--color-primario); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity .2s; }
+  .nv-btn:hover { opacity: .85; }
+  .nv-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .nv-hint { font-size: 11px; color: #9ca3af; }
+
+  /* Resultados */
+  .nv-result { border-radius: 12px; overflow: hidden; margin-top: 16px; border: 1px solid; display: none; }
+  .nv-result.show { display: block; }
+  .nv-result-header { padding: 14px 18px; color: white; display: flex; align-items: center; gap: 10px; }
+  .nv-result-header svg { flex-shrink: 0; }
+  .nv-result-header-text h3 { font-size: 14px; font-weight: 700; }
+  .nv-result-header-text p { font-size: 12px; opacity: .85; margin-top: 2px; }
+  .nv-result-body { padding: 16px 18px; background: #fff; }
+
+  /* Válido */
+  .nv-valido { border-color: var(--color-valido); }
+  .nv-valido .nv-result-header { background: var(--color-valido); }
+
+  /* Inválido */
+  .nv-invalido { border-color: var(--color-invalido); }
+  .nv-invalido .nv-result-header { background: var(--color-invalido); }
+
+  /* Anulado */
+  .nv-anulado { border-color: var(--color-anulado); }
+  .nv-anulado .nv-result-header { background: var(--color-anulado); }
+
+  /* Datos */
+  .nv-dato { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+  .nv-dato:last-child { border-bottom: none; }
+  .nv-dato-label { font-size: 11px; color: #9ca3af; min-width: 120px; padding-top: 2px; }
+  .nv-dato-valor { font-size: 13px; font-weight: 600; color: #1f2937; }
+  .nv-acta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .nv-acta-item { background: #f9fafb; border-radius: 10px; padding: 12px; text-align: center; }
+  .nv-acta-label { font-size: 10px; color: #9ca3af; margin-bottom: 4px; }
+  .nv-acta-valor { font-size: 20px; font-weight: 800; color: #1f2937; font-family: monospace; }
+
+  .nv-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     INICIO DEL WIDGET — pega desde aquí en WordPress
+     ══════════════════════════════════════════════════════════ -->
+<div id="nomaddi-verificar">
+  <div class="nv-card">
+
+    <div class="nv-header">
+      <h2>🔍 Verificar Certificado</h2>
+      <p>Ingresa el código único del certificado para comprobar su autenticidad.</p>
+    </div>
+
+    <div class="nv-body">
+      <div class="nv-input-wrap">
+        <input type="text" id="nv-uuid-input" class="nv-input"
+          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          spellcheck="false" autocomplete="off"
+          oninput="nvLimpiarResultado()" />
+        <button class="nv-btn" id="nv-btn" onclick="nvVerificar()">
+          Verificar
+        </button>
+      </div>
+      <p class="nv-hint">
+        El código aparece impreso en el certificado. También puedes escanear el código QR.
+      </p>
+
+      <!-- Resultado válido -->
+      <div class="nv-result nv-valido" id="nv-resultado-valido">
+        <div class="nv-result-header">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <div class="nv-result-header-text">
+            <h3>Certificado Válido</h3>
+            <p>Auténtico y verificado en el registro oficial.</p>
+          </div>
+        </div>
+        <div class="nv-result-body" id="nv-datos-valido"></div>
+      </div>
+
+      <!-- Resultado anulado -->
+      <div class="nv-result nv-anulado" id="nv-resultado-anulado">
+        <div class="nv-result-header">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div class="nv-result-header-text">
+            <h3>Certificado Anulado</h3>
+            <p>Este certificado fue anulado por la institución.</p>
+          </div>
+        </div>
+        <div class="nv-result-body" id="nv-datos-anulado"></div>
+      </div>
+
+      <!-- Resultado inválido -->
+      <div class="nv-result nv-invalido" id="nv-resultado-invalido">
+        <div class="nv-result-header">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          <div class="nv-result-header-text">
+            <h3>Certificado No Encontrado</h3>
+            <p>El código no corresponde a ningún certificado registrado.</p>
+          </div>
+        </div>
+        <div class="nv-result-body">
+          <p style="font-size:13px;color:#6b7280;">
+            Verifica que el código fue digitado correctamente o que el QR no esté dañado.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// URL de la API de verificación — CAMBIAR al dominio del panel
+const NV_API = 'https://panel.campusvirtual.edu.co/api/verificar/';
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function nvLimpiarResultado() {
+  ['nv-resultado-valido','nv-resultado-anulado','nv-resultado-invalido']
+    .forEach(id => document.getElementById(id).classList.remove('show'));
+}
+
+async function nvVerificar() {
+  const input = document.getElementById('nv-uuid-input');
+  const btn   = document.getElementById('nv-btn');
+  const uuid  = input.value.trim();
+
+  if (!UUID_REGEX.test(uuid)) {
+    input.style.borderColor = '#ef4444';
+    setTimeout(() => input.style.borderColor = '', 1500);
+    return;
+  }
+
+  nvLimpiarResultado();
+  btn.disabled = true;
+  btn.innerHTML = '<span class="nv-spinner"></span>';
+
+  try {
+    const res  = await fetch(NV_API + uuid, { headers: { Accept: 'application/json' } });
+    const data = await res.json();
+
+    if (data.valido) {
+      // Construir el HTML del resultado válido
+      const tipo = data.tipo_programa === 'TECNICOS' ? 'Técnico Laboral' : 'Bachillerato';
+      document.getElementById('nv-datos-valido').innerHTML = `
+        <div class="nv-dato">
+          <span class="nv-dato-label">Estudiante</span>
+          <span class="nv-dato-valor">${data.estudiante}</span>
+        </div>
+        <div class="nv-dato">
+          <span class="nv-dato-label">Programa</span>
+          <span class="nv-dato-valor">${data.programa}</span>
+        </div>
+        <div class="nv-dato">
+          <span class="nv-dato-label">Institución</span>
+          <span class="nv-dato-valor">${data.institucion}</span>
+        </div>
+        <div class="nv-dato">
+          <span class="nv-dato-label">Tipo</span>
+          <span class="nv-dato-valor">${tipo}</span>
+        </div>
+        <div class="nv-dato">
+          <span class="nv-dato-label">Fecha de emisión</span>
+          <span class="nv-dato-valor">${data.fecha_emision}</span>
+        </div>
+        <div class="nv-acta-grid">
+          <div class="nv-acta-item">
+            <div class="nv-acta-label">N° de Acta</div>
+            <div class="nv-acta-valor">${data.acta}</div>
+          </div>
+          <div class="nv-acta-item">
+            <div class="nv-acta-label">N° de Folio</div>
+            <div class="nv-acta-valor">${data.folio}</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('nv-resultado-valido').classList.add('show');
+
+    } else if (data.anulado) {
+      document.getElementById('nv-datos-anulado').innerHTML =
+        data.motivo
+          ? `<p style="font-size:13px;color:#6b7280;"><strong>Motivo:</strong> ${data.motivo}</p>`
+          : `<p style="font-size:13px;color:#6b7280;">Comuníquese con la institución para más información.</p>`;
+      document.getElementById('nv-resultado-anulado').classList.add('show');
+
+    } else {
+      document.getElementById('nv-resultado-invalido').classList.add('show');
+    }
+
+  } catch (err) {
+    document.getElementById('nv-resultado-invalido').classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Verificar';
+  }
+}
+
+// Permitir Enter en el input
+document.getElementById('nv-uuid-input')
+  .addEventListener('keypress', e => { if (e.key === 'Enter') nvVerificar(); });
+
+// Si hay un UUID en la URL (?uuid=xxx), verificar automáticamente
+const params = new URLSearchParams(window.location.search);
+const uuidParam = params.get('uuid');
+if (uuidParam) {
+  document.getElementById('nv-uuid-input').value = uuidParam;
+  nvVerificar();
+}
+</script>
+<!-- ══════════════════════════════════════════════════════════
+     FIN DEL WIDGET
+     ══════════════════════════════════════════════════════════ -->
+
+</body>
+</html>
